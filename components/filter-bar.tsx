@@ -118,18 +118,19 @@ export function FilterBar({
         <span className="text-muted-foreground shrink-0 text-xs font-medium">
           Age
         </span>
-        <Slider
-          value={[filters.ageLow, filters.ageHigh]}
-          min={5}
-          max={90}
-          step={1}
-          minStepsBetweenValues={1}
-          onValueChange={(val) => {
-            const [low, high] = val as number[];
-            set({ ageLow: low, ageHigh: high });
-          }}
-          className="w-32"
-        />
+        <div className="w-36 shrink-0">
+          <Slider
+            value={[filters.ageLow, filters.ageHigh]}
+            min={5}
+            max={90}
+            step={1}
+            minStepsBetweenValues={1}
+            onValueChange={(val) => {
+              const [low, high] = val as number[];
+              set({ ageLow: low, ageHigh: high });
+            }}
+          />
+        </div>
         <span className="text-foreground/80 w-11 shrink-0 text-right text-xs tabular-nums">
           {filters.ageLow}–{filters.ageHigh}
         </span>
