@@ -70,11 +70,25 @@ export function HeadViewer({
       });
     };
 
-    // debounce pose emission while dragging
-    let poseTimer: ReturnType<typeof setTimeout> | null = null;
+    // Throttle pose emission so faces update *during* the drag (leading + trailing
+    // edge), not only after release, while still capping the query rate.
+    const THROTTLE_MS = 110;
+    let lastEmit = 0;
+    let trailingTimer: ReturnType<typeof setTimeout> | null = null;
+    const now = () =>
+      typeof performance !== "undefined" ? performance.now() : Date.now();
     const onControlsChange = () => {
-      if (poseTimer) clearTimeout(poseTimer);
-      poseTimer = setTimeout(emitPose, 140);
+      const elapsed = now() - lastEmit;
+      if (elapsed >= THROTTLE_MS) {
+        lastEmit = now();
+        emitPose();
+      } else {
+        if (trailingTimer) clearTimeout(trailingTimer);
+        trailingTimer = setTimeout(() => {
+          lastEmit = now();
+          emitPose();
+        }, THROTTLE_MS - elapsed);
+      }
     };
     controls.addEventListener("change", onControlsChange);
 
@@ -120,7 +134,7 @@ export function HeadViewer({
     return () => {
       window.removeEventListener("resize", onResize);
       controls.removeEventListener("change", onControlsChange);
-      if (poseTimer) clearTimeout(poseTimer);
+      if (trailingTimer) clearTimeout(trailingTimer);
       cancelAnimationFrame(frame);
       controls.dispose();
       renderer.dispose();

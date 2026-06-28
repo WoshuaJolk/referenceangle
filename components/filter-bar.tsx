@@ -114,9 +114,9 @@ export function FilterBar({
       </Select>
 
       {/* Age range */}
-      <div className="flex h-9 min-w-[170px] items-center gap-3 rounded-md border px-3">
-        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-          {filters.ageLow}–{filters.ageHigh}
+      <div className="bg-background flex h-9 items-center gap-3 rounded-md border px-3">
+        <span className="text-muted-foreground shrink-0 text-xs font-medium">
+          Age
         </span>
         <Slider
           value={[filters.ageLow, filters.ageHigh]}
@@ -128,8 +128,11 @@ export function FilterBar({
             const [low, high] = val as number[];
             set({ ageLow: low, ageHigh: high });
           }}
-          className="w-28"
+          className="w-32"
         />
+        <span className="text-foreground/80 w-11 shrink-0 text-right text-xs tabular-nums">
+          {filters.ageLow}–{filters.ageHigh}
+        </span>
       </div>
 
       {/* Boolean attributes combo box */}

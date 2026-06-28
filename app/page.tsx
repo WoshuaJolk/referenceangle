@@ -27,11 +27,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const abortRef = useRef<AbortController | null>(null);
+  const cacheRef = useRef<Map<string, string[]>>(new Map());
 
   const fetchResults = useCallback(async (p: Pose, f: Filters) => {
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
     const params = new URLSearchParams({
       pitch: String(p.pitch),
       yaw: String(p.yaw),
@@ -42,13 +40,28 @@ export default function Home() {
       emotion: f.emotion,
       must: f.must.join(","),
     });
+    const key = params.toString();
+
+    // serve repeated angles instantly from cache (keeps the DB load low while
+    // dragging back and forth)
+    const cached = cacheRef.current.get(key);
+    if (cached) {
+      abortRef.current?.abort();
+      setResults(cached);
+      setLoading(false);
+      return;
+    }
+
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
     setLoading(true);
     try {
-      const res = await fetch(`/api/facePoses?${params}`, {
-        signal: ctrl.signal,
-      });
+      const res = await fetch(`/api/facePoses?${key}`, { signal: ctrl.signal });
       const data: Array<{ src: string }> = await res.json();
-      setResults(Array.isArray(data) ? data.map((d) => d.src) : []);
+      const srcs = Array.isArray(data) ? data.map((d) => d.src) : [];
+      cacheRef.current.set(key, srcs);
+      setResults(srcs);
     } catch (e) {
       if ((e as Error)?.name !== "AbortError") setResults([]);
     } finally {
@@ -56,9 +69,10 @@ export default function Home() {
     }
   }, []);
 
-  // refetch whenever the pose or filters change (debounced)
+  // refetch whenever the pose or filters change (small debounce; the viewer
+  // already throttles pose emission during the drag)
   useEffect(() => {
-    const t = setTimeout(() => fetchResults(pose, filters), 100);
+    const t = setTimeout(() => fetchResults(pose, filters), 40);
     return () => clearTimeout(t);
   }, [pose, filters, fetchResults]);
 

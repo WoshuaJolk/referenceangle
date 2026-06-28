@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +15,19 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+// desktop: 2x3 grid (6 per slide). mobile: 2x2 grid (4 per slide).
+function useSlideSize() {
+  const [size, setSize] = useState(6);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setSize(mq.matches ? 6 : 4);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return size;
+}
+
 export function ResultsCarousel({
   results,
   loading,
@@ -21,7 +35,8 @@ export function ResultsCarousel({
   results: string[];
   loading: boolean;
 }) {
-  const slides = chunk(results, 4);
+  const slideSize = useSlideSize();
+  const slides = chunk(results, slideSize);
 
   if (!loading && results.length === 0) {
     return (
@@ -32,14 +47,11 @@ export function ResultsCarousel({
   }
 
   return (
-    <Carousel
-      opts={{ align: "start" }}
-      className="w-full"
-    >
+    <Carousel opts={{ align: "start" }} className="w-full">
       <CarouselContent>
         {slides.map((slide, i) => (
           <CarouselItem key={i}>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {slide.map((src) => (
                 <a
                   key={src}
@@ -53,6 +65,7 @@ export function ResultsCarousel({
                     src={src}
                     alt=""
                     loading="lazy"
+                    decoding="async"
                     className="size-full object-cover transition duration-300 group-hover:scale-105"
                   />
                 </a>
