@@ -97,7 +97,7 @@ export default function Home() {
           <div className="md:sticky md:top-6">
             <HeadViewer onPoseChange={onPoseChange} />
             <p className="text-muted-foreground mt-2 text-center text-xs tabular-nums">
-              yaw {pose.yaw}° · pitch {pose.pitch}°
+              turn {pose.pitch}° · tilt {pose.roll}°
             </p>
           </div>
         </div>

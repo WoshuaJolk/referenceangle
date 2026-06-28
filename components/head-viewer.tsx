@@ -13,6 +13,11 @@ export interface Pose {
 
 const DEG = 180 / Math.PI;
 
+// Sign calibration for the orbit -> DB-column mapping (see emitPose). Flip these
+// if the returned faces turn opposite to the mesh.
+const TURN_SIGN = -1; // azimuth -> pitch column (left/right turn)
+const TILT_SIGN = 1; // elevation -> roll column (up/down tilt)
+
 export function HeadViewer({
   onPoseChange,
 }: {
@@ -56,17 +61,18 @@ export function HeadViewer({
     key.position.set(20, 25, 20);
     scene.add(ambient, key);
 
-    // Derive a head pose (stare convention, degrees) from the orbit state.
-    // azimuth -> yaw, polar deviation from the equator -> pitch, roll fixed 0.
+    // Derive the DB pose columns from the orbit state. NOTE: stare's
+    // head_pose_from_matrix labels are rotated vs. intuition for this data —
+    // the `pitch` column actually carries left/right turn, `roll` carries
+    // up/down, and `yaw` carries in-plane tilt. So map the horizontal orbit
+    // (azimuth) to pitch and the vertical orbit (elevation) to roll.
     const emitPose = () => {
-      const az = controls.getAzimuthalAngle(); // radians, around Y
-      const polar = controls.getPolarAngle(); // radians, from +Y
-      const yaw = az * DEG;
-      const pitch = (Math.PI / 2 - polar) * DEG;
+      const azDeg = controls.getAzimuthalAngle() * DEG; // horizontal turn
+      const elevDeg = (Math.PI / 2 - controls.getPolarAngle()) * DEG; // up/down
       onPoseRef.current({
-        pitch: Math.round(pitch),
-        yaw: Math.round(yaw),
-        roll: 0,
+        pitch: Math.round(TURN_SIGN * azDeg), // DB pitch col = left/right
+        roll: Math.round(TILT_SIGN * elevDeg), // DB roll col = up/down
+        yaw: 0, // DB yaw col = in-plane roll (orbit produces none)
       });
     };
 
