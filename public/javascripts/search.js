@@ -87,3 +87,9 @@ $("#submit-button").click(function () {
         }
     });
 });
+
+// Run an initial search on page load so the grid is populated from the database
+// (the default frontal pose / "any" filters) instead of showing placeholders.
+$(function () {
+    $('#submit-button').click();
+});

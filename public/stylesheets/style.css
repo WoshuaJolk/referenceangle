@@ -252,3 +252,78 @@ body {
 .ui.range.disabled .inner .track-fill {
     background: #ccc;
 }
+
+/*--------------
+   Mobile layout
+   On narrow screens: images in a 2x2 grid on top, the mannequin head and the
+   controls stacked below. The head/form are position:absolute on desktop, so
+   we reflow them into normal flex order here.
+---------------*/
+@media only screen and (max-width: 768px) {
+    body {
+        padding: 16px;
+    }
+
+    #mainContainer {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* images first (top) */
+    #dataContainer {
+        order: 1;
+        margin-left: 0 !important;
+        width: 100%;
+        padding-top: 0;
+    }
+
+    /* 2 columns -> a 2x2 grid for the 4 mobile results */
+    #dataContainer.ui.grid > .column {
+        width: 50% !important;
+        padding: 4px !important;
+    }
+
+    #dataContainer .ui.segment {
+        padding: 6px;
+        margin: 0;
+    }
+
+    #dataContainer .ui.image,
+    #dataContainer img.pose {
+        width: 100% !important;
+        height: auto;
+        display: block;
+    }
+
+    #mainPaginationContainer {
+        order: 2;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    #notificationArea {
+        order: 3;
+        margin-left: 0;
+    }
+
+    /* the mannequin head, below the images */
+    #scene-container {
+        order: 4;
+        position: static;
+        width: 100%;
+        max-width: 320px;
+        height: 320px;
+        margin: 8px auto 0 auto;
+        padding-top: 0;
+    }
+
+    /* controls at the bottom */
+    #submitForm {
+        order: 5;
+        position: static;
+        top: auto;
+        left: auto;
+        width: 100%;
+        margin-top: 16px;
+    }
+}
