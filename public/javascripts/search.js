@@ -62,11 +62,13 @@ $("#submit-button").click(function () {
         ageRange
     });
     let url = `${href}api/facePoses?${paramString}`;
-    gtag('event', 'made search', {
-        'event_category': 'na',
-        'event_label': 'na',
-        'value': paramString
-    });
+    if (typeof gtag === 'function') {
+        gtag('event', 'made search', {
+            'event_category': 'na',
+            'event_label': 'na',
+            'value': paramString
+        });
+    }
     $.ajax({
         url,
         timeout: 5000,
@@ -76,7 +78,9 @@ $("#submit-button").click(function () {
             }, 100)
         },
         error: function (error) {
-            Sentry.captureException(new Error("Error fetching images from db"));
+            if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                Sentry.captureException(new Error("Error fetching images from db"));
+            }
             globalDataList = [];
             destroyPagination();
             $('#errSpace').text('An error occurred. Please try again later.');
