@@ -22,9 +22,18 @@ function init() {
         const box = new THREE.Box3().setFromObject(obj);
         const center = new THREE.Vector3();
         box.getCenter(center);
+        // recenter the mesh on the origin so the head sits in front of the camera
         mesh.position.set(-center.x, -center.y, -center.z);
         const size = new THREE.Vector3();
         box.getSize(size);
+        // the OBJ is authored in metres (~0.37m tall); scale it up so the head
+        // fills a sensible portion of the view (camera at z=15, FOV 50 -> ~14
+        // units tall visible). Target the head's largest dimension at ~9 units.
+        const targetSize = 9;
+        const scale = targetSize / Math.max(size.x, size.y, size.z);
+        obj.scale.setScalar(scale);
+        // the mesh ships pre-oriented (face +Z toward the camera, up +Y), so no
+        // rotation is needed for a front-on, upright default view.
         obj.rotation.set(0, 0, 0);
         scene.add(obj);
         createRenderer();
