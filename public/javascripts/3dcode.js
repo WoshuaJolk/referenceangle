@@ -32,9 +32,9 @@ function init() {
         const targetSize = 9;
         const scale = targetSize / Math.max(size.x, size.y, size.z);
         obj.scale.setScalar(scale);
-        // the mesh ships pre-oriented (face +Z toward the camera, up +Y), so no
-        // rotation is needed for a front-on, upright default view.
-        obj.rotation.set(0, 0, 0);
+        // the mesh's face points -Z (away from the default camera), so spin it
+        // 180 degrees about the vertical axis to face the camera (+Z), upright.
+        obj.rotation.set(0, Math.PI, 0);
         scene.add(obj);
         createRenderer();
         // start the animation loop

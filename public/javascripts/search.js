@@ -3,7 +3,7 @@ let globalCards = [];
 
 let globalPlaceholders = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(el => {
     return {
-        src: `/images/placeholders/universal.png`
+        src: `/images/face-placeholder.gif`
     }
 });
 
@@ -71,7 +71,7 @@ $("#submit-button").click(function () {
     }
     $.ajax({
         url,
-        timeout: 5000,
+        timeout: 20000,
         success: function (data) {
             setTimeout(() => {
                 setImages(data);
