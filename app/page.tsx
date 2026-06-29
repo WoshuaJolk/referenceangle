@@ -116,11 +116,32 @@ export default function Home() {
           ready ? "opacity-100" : "opacity-0",
         )}
       >
-      <header className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Reference Angle</h1>
-        <p className="text-muted-foreground text-sm">
-          Rotate the head to find faces at that angle.
-        </p>
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">
+            Reference Angle
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Rotate the head to find faces.
+          </p>
+        </div>
+        {/* mobile: filters behind a button -> modal */}
+        <div className="shrink-0 md:hidden">
+          <Dialog>
+            <DialogTrigger
+              render={<Button variant="outline" className="gap-2" />}
+            >
+              <SlidersHorizontal className="size-4" />
+              Filters
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Filters</DialogTitle>
+              <div className="mt-2">
+                <FilterBar filters={filters} onChange={setFilters} />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
 
       {/* desktop: filters inline across the top */}
@@ -141,27 +162,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* mobile only: filters behind a button -> modal */}
-        <div className="order-2 md:hidden">
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button variant="outline" className="w-full justify-center gap-2" />
-              }
-            >
-              <SlidersHorizontal className="size-4" />
-              Filters
-            </DialogTrigger>
-            <DialogContent>
-              <DialogTitle>Filters</DialogTitle>
-              <div className="mt-2">
-                <FilterBar filters={filters} onChange={setFilters} />
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        <div className="order-3 min-w-0 flex-1 md:order-2">
+        <div className="order-2 min-w-0 flex-1 md:order-2">
           <ResultsCarousel results={results} loading={loading} />
         </div>
       </div>

@@ -20,6 +20,48 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out;
 }
 
+// A thumbnail that keeps showing its current image while a new one (from a new
+// search) loads, then swaps once the incoming image is decoded — so moving the
+// head never flashes empty/white cells.
+function Thumb({
+  src,
+  onOpen,
+}: {
+  src: string;
+  onOpen: (s: string) => void;
+}) {
+  const [shown, setShown] = useState(src);
+  useEffect(() => {
+    if (src === shown) return;
+    let cancelled = false;
+    const img = new window.Image();
+    img.src = src;
+    const swap = () => {
+      if (!cancelled) setShown(src);
+    };
+    if (img.decode) img.decode().then(swap).catch(swap);
+    else img.onload = swap;
+    return () => {
+      cancelled = true;
+    };
+  }, [src, shown]);
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(shown)}
+      className="group relative block aspect-square cursor-pointer overflow-hidden rounded-lg border bg-neutral-100"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={shown}
+        alt=""
+        decoding="async"
+        className="size-full object-cover transition duration-300 group-hover:scale-105"
+      />
+    </button>
+  );
+}
+
 // desktop: 2x3 grid (6 per slide). mobile: 2x2 grid (4 per slide).
 function useSlideSize() {
   const [size, setSize] = useState(6);
@@ -82,22 +124,8 @@ export function ResultsCarousel({
         {slides.map((slide, i) => (
           <CarouselItem key={i}>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {slide.map((src) => (
-                <button
-                  key={src}
-                  type="button"
-                  onClick={() => setLightbox(src)}
-                  className="group relative block aspect-square cursor-pointer overflow-hidden rounded-lg border bg-neutral-100"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition duration-300 group-hover:scale-105"
-                  />
-                </button>
+              {slide.map((src, j) => (
+                <Thumb key={`${i}-${j}`} src={src} onOpen={setLightbox} />
               ))}
             </div>
           </CarouselItem>
