@@ -138,9 +138,6 @@ export default function Home() {
                 onReady={() => setHeadReady(true)}
               />
             </div>
-            <p className="text-muted-foreground mt-2 text-center text-xs tabular-nums">
-              turn {pose.pitch}° · tilt {pose.roll}°
-            </p>
           </div>
         </div>
 
