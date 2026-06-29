@@ -18,8 +18,6 @@ export const ATTRIBUTES = [
   { key: "issmiling", label: "Smiling" },
   { key: "sunglasses", label: "Sunglasses" },
   { key: "eyeglasses", label: "Eyeglasses" },
-  { key: "beard", label: "Beard" },
-  { key: "mustache", label: "Mustache" },
   { key: "eyesopen", label: "Eyes open" },
   { key: "mouthopen", label: "Mouth open" },
 ] as const;
