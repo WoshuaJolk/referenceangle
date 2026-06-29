@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
@@ -38,6 +38,27 @@ export function ResultsCarousel({
   const slideSize = useSlideSize();
   const slides = chunk(results, slideSize);
 
+  const [api, setApi] = useState<CarouselApi>();
+  const [snaps, setSnaps] = useState<number[]>([]);
+  const [selected, setSelected] = useState(0);
+
+  const onUpdate = useCallback((api: CarouselApi) => {
+    if (!api) return;
+    setSnaps(api.scrollSnapList());
+    setSelected(api.selectedScrollSnap());
+  }, []);
+
+  useEffect(() => {
+    if (!api) return;
+    onUpdate(api);
+    api.on("select", onUpdate);
+    api.on("reInit", onUpdate);
+    return () => {
+      api.off("select", onUpdate);
+      api.off("reInit", onUpdate);
+    };
+  }, [api, onUpdate]);
+
   if (!loading && results.length === 0) {
     return (
       <div className="text-muted-foreground flex h-full min-h-[300px] items-center justify-center text-sm">
@@ -47,7 +68,7 @@ export function ResultsCarousel({
   }
 
   return (
-    <Carousel opts={{ align: "start" }} className="w-full">
+    <Carousel setApi={setApi} opts={{ align: "start" }} className="w-full">
       <CarouselContent>
         {slides.map((slide, i) => (
           <CarouselItem key={i}>
@@ -74,8 +95,25 @@ export function ResultsCarousel({
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden sm:flex" />
-      <CarouselNext className="hidden sm:flex" />
+      {snaps.length > 1 && (
+        <div className="mt-4 flex justify-center gap-2">
+          {snaps.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={i === selected}
+              onClick={() => api?.scrollTo(i)}
+              className={cn(
+                "size-2 rounded-full transition-colors",
+                i === selected
+                  ? "bg-black"
+                  : "bg-neutral-300 hover:bg-neutral-400"
+              )}
+            />
+          ))}
+        </div>
+      )}
     </Carousel>
   );
 }
