@@ -129,14 +129,14 @@ export function ResultsCarousel({
         if (!o) setLightbox(null);
       }}
     >
-      <DialogContent className="w-auto max-w-[96vw] border-0 bg-transparent p-0 shadow-none sm:max-w-[96vw]">
+      <DialogContent className="max-w-[92vw] border-0 bg-transparent p-0 shadow-none sm:max-w-xl">
         <DialogTitle className="sr-only">Face</DialogTitle>
         {lightbox && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={lightbox}
             alt=""
-            className="max-h-[88vh] w-auto rounded-lg object-contain"
+            className="aspect-square w-full rounded-xl object-cover shadow-2xl"
           />
         )}
       </DialogContent>
