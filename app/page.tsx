@@ -2,9 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { SlidersHorizontal } from "lucide-react";
 import { FilterBar, type Filters } from "@/components/filter-bar";
 import { ResultsCarousel } from "@/components/results-carousel";
 import type { Pose } from "@/components/head-viewer";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // the 3D viewer is client-only (WebGL)
 const HeadViewer = dynamic(
@@ -87,22 +95,45 @@ export default function Home() {
         </p>
       </header>
 
-      <div className="mb-6">
+      {/* desktop: filters inline across the top */}
+      <div className="mb-6 hidden md:block">
         <FilterBar filters={filters} onChange={setFilters} />
       </div>
 
-      {/* mobile: results on top, head below. desktop: head left, results right. */}
-      <div className="flex flex-col gap-8 md:flex-row md:items-start md:gap-10">
-        <div className="order-2 md:order-1 md:w-[300px] md:shrink-0">
+      <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-10">
+        {/* head: small + on top on mobile, left column on desktop */}
+        <div className="order-1 md:w-[300px] md:shrink-0">
           <div className="md:sticky md:top-6">
-            <HeadViewer onPoseChange={onPoseChange} />
+            <div className="mx-auto w-40 md:w-full">
+              <HeadViewer onPoseChange={onPoseChange} />
+            </div>
             <p className="text-muted-foreground mt-2 text-center text-xs tabular-nums">
               turn {pose.pitch}° · tilt {pose.roll}°
             </p>
           </div>
         </div>
 
-        <div className="order-1 min-w-0 flex-1 md:order-2">
+        {/* mobile only: filters behind a button -> modal */}
+        <div className="order-2 md:hidden">
+          <Dialog>
+            <DialogTrigger
+              render={
+                <Button variant="outline" className="w-full justify-center gap-2" />
+              }
+            >
+              <SlidersHorizontal className="size-4" />
+              Filters
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Filters</DialogTitle>
+              <div className="mt-2">
+                <FilterBar filters={filters} onChange={setFilters} />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="order-3 min-w-0 flex-1 md:order-2">
           <ResultsCarousel results={results} loading={loading} />
         </div>
       </div>
