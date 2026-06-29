@@ -1,0 +1,30 @@
+{
+  "count": 6151,
+  "gender": {
+    "Female": 3208,
+    "Male": 2943
+  },
+  "emotions": {
+    "CONFUSED": 648,
+    "SAD": 1062,
+    "HAPPY": 1971,
+    "ANGRY": 824,
+    "CALM": 1452,
+    "SURPRISED": 181,
+    "DISGUSTED": 13
+  },
+  "eyeglasses": 887,
+  "sunglasses": 374,
+  "smiling": 2538,
+  "beard": 787,
+  "mustache": 1140,
+  "yaw_min": -26.49,
+  "yaw_max": 39.56,
+  "yaw_ge20": 14,
+  "yaw_ge30": 2,
+  "pitch_min": -74.45,
+  "pitch_max": 72.21,
+  "rejected": {
+    "nopose": 40
+  }
+}
