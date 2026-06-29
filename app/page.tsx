@@ -161,7 +161,11 @@ export default function Home() {
         </div>
 
         <div className="order-2 min-w-0 flex-1 md:order-2">
-          <ResultsCarousel results={results} loading={loading} />
+          <ResultsCarousel
+            results={results}
+            loading={loading}
+            onFindNearest={() => setFilters(DEFAULT_FILTERS)}
+          />
         </div>
       </div>
       </main>

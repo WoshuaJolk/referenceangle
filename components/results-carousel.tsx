@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -78,9 +79,11 @@ function useSlideSize() {
 export function ResultsCarousel({
   results,
   loading,
+  onFindNearest,
 }: {
   results: string[];
   loading: boolean;
+  onFindNearest: () => void;
 }) {
   const slideSize = useSlideSize();
   // cap the number shown so the dot row stays reasonable (and never forces the
@@ -113,31 +116,30 @@ export function ResultsCarousel({
 
   return (
     <>
-    <Carousel setApi={setApi} opts={{ align: "start" }} className="w-full">
-      <CarouselContent>
-        {empty ? (
-          // Render the empty state as a slide so it has the exact same width /
-          // height as a populated slide (no layout shift when switching).
-          <CarouselItem>
-            <div className="relative">
-              <div
-                aria-hidden
-                className="grid grid-cols-2 gap-3 md:grid-cols-3"
-              >
-                {Array.from({ length: slideSize }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="aspect-square rounded-lg border bg-neutral-50"
-                  />
-                ))}
-              </div>
-              <div className="text-muted-foreground absolute inset-0 flex items-center justify-center px-6 text-center text-sm">
-                No faces match these filters. Try a different combination.
-              </div>
-            </div>
-          </CarouselItem>
-        ) : (
-          slides.map((slide, i) => (
+    {empty ? (
+      // full-width ghost grid (6 boxes desktop / 4 mobile) with an overlay card.
+      // rendered outside the carousel so it spans the full width like a real
+      // slide (a single embla slide collapses to its content width).
+      <div className="relative">
+        <div aria-hidden className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          {Array.from({ length: slideSize }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-square rounded-lg border bg-neutral-100"
+            />
+          ))}
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          <div className="flex flex-col items-center gap-3 rounded-xl border bg-white px-6 py-5 text-center shadow-lg">
+            <p className="text-sm font-medium">No images found</p>
+            <Button onClick={onFindNearest}>Find nearest</Button>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <Carousel setApi={setApi} opts={{ align: "start" }} className="w-full">
+        <CarouselContent>
+          {slides.map((slide, i) => (
             <CarouselItem key={i}>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                 {slide.map((src, j) => (
@@ -145,10 +147,10 @@ export function ResultsCarousel({
                 ))}
               </div>
             </CarouselItem>
-          ))
-        )}
-      </CarouselContent>
-    </Carousel>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    )}
 
     {/* dot row — always reserves its height so switching to the empty state
         (or a single slide) never shifts the layout */}
