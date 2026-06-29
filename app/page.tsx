@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { SlidersHorizontal } from "lucide-react";
+import { Loader2, SlidersHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { FilterBar, type Filters } from "@/components/filter-bar";
 import { ResultsCarousel } from "@/components/results-carousel";
 import type { Pose } from "@/components/head-viewer";
@@ -33,9 +34,21 @@ export default function Home() {
   const [pose, setPose] = useState<Pose>({ pitch: 0, yaw: 0, roll: 0 });
   const [results, setResults] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [headReady, setHeadReady] = useState(false);
+  const [firstLoaded, setFirstLoaded] = useState(false);
+  const ready = headReady && firstLoaded;
 
   const abortRef = useRef<AbortController | null>(null);
   const cacheRef = useRef<Map<string, string[]>>(new Map());
+
+  // fallback so the page never gets stuck on the loader if the mesh/data stall
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setHeadReady(true);
+      setFirstLoaded(true);
+    }, 7000);
+    return () => clearTimeout(t);
+  }, []);
 
   const fetchResults = useCallback(async (p: Pose, f: Filters) => {
     const params = new URLSearchParams({
@@ -57,6 +70,7 @@ export default function Home() {
       abortRef.current?.abort();
       setResults(cached);
       setLoading(false);
+      setFirstLoaded(true);
       return;
     }
 
@@ -73,7 +87,10 @@ export default function Home() {
     } catch (e) {
       if ((e as Error)?.name !== "AbortError") setResults([]);
     } finally {
-      if (!ctrl.signal.aborted) setLoading(false);
+      if (!ctrl.signal.aborted) {
+        setLoading(false);
+        setFirstLoaded(true);
+      }
     }
   }, []);
 
@@ -87,7 +104,18 @@ export default function Home() {
   const onPoseChange = useCallback((p: Pose) => setPose(p), []);
 
   return (
-    <main className="mx-auto min-h-screen max-w-6xl px-4 py-6 sm:py-10">
+    <>
+      {!ready && (
+        <div className="bg-background fixed inset-0 z-50 grid place-items-center">
+          <Loader2 className="text-muted-foreground size-6 animate-spin" />
+        </div>
+      )}
+      <main
+        className={cn(
+          "mx-auto min-h-screen max-w-6xl px-4 py-6 transition-opacity duration-300 sm:py-10",
+          ready ? "opacity-100" : "opacity-0",
+        )}
+      >
       <header className="mb-6">
         <h1 className="text-xl font-semibold tracking-tight">Reference Angle</h1>
         <p className="text-muted-foreground text-sm">
@@ -105,7 +133,10 @@ export default function Home() {
         <div className="order-1 md:w-[300px] md:shrink-0">
           <div className="md:sticky md:top-6">
             <div className="mx-auto w-40 md:w-full">
-              <HeadViewer onPoseChange={onPoseChange} />
+              <HeadViewer
+                onPoseChange={onPoseChange}
+                onReady={() => setHeadReady(true)}
+              />
             </div>
             <p className="text-muted-foreground mt-2 text-center text-xs tabular-nums">
               turn {pose.pitch}° · tilt {pose.roll}°
@@ -137,6 +168,7 @@ export default function Home() {
           <ResultsCarousel results={results} loading={loading} />
         </div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

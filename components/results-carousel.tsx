@@ -7,6 +7,11 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -43,6 +48,7 @@ export function ResultsCarousel({
   const [api, setApi] = useState<CarouselApi>();
   const [snaps, setSnaps] = useState<number[]>([]);
   const [selected, setSelected] = useState(0);
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   const onUpdate = useCallback((api: CarouselApi) => {
     if (!api) return;
@@ -70,18 +76,18 @@ export function ResultsCarousel({
   }
 
   return (
+    <>
     <Carousel setApi={setApi} opts={{ align: "start" }} className="w-full">
       <CarouselContent>
         {slides.map((slide, i) => (
           <CarouselItem key={i}>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {slide.map((src) => (
-                <a
+                <button
                   key={src}
-                  href={src}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group relative block aspect-square overflow-hidden rounded-lg border bg-neutral-100"
+                  type="button"
+                  onClick={() => setLightbox(src)}
+                  className="group relative block aspect-square cursor-pointer overflow-hidden rounded-lg border bg-neutral-100"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -91,7 +97,7 @@ export function ResultsCarousel({
                     decoding="async"
                     className="size-full object-cover transition duration-300 group-hover:scale-105"
                   />
-                </a>
+                </button>
               ))}
             </div>
           </CarouselItem>
@@ -117,5 +123,24 @@ export function ResultsCarousel({
         </div>
       )}
     </Carousel>
+    <Dialog
+      open={!!lightbox}
+      onOpenChange={(o) => {
+        if (!o) setLightbox(null);
+      }}
+    >
+      <DialogContent className="w-auto max-w-[96vw] border-0 bg-transparent p-0 shadow-none sm:max-w-[96vw]">
+        <DialogTitle className="sr-only">Face</DialogTitle>
+        {lightbox && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={lightbox}
+            alt=""
+            className="max-h-[88vh] w-auto rounded-lg object-contain"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

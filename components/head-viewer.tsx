@@ -20,12 +20,16 @@ const TILT_SIGN = 1; // elevation -> roll column (up/down tilt)
 
 export function HeadViewer({
   onPoseChange,
+  onReady,
 }: {
   onPoseChange: (pose: Pose) => void;
+  onReady?: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const onPoseRef = useRef(onPoseChange);
   onPoseRef.current = onPoseChange;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -127,6 +131,7 @@ export function HeadViewer({
       };
       animate();
       emitPose(); // initial frontal search
+      onReadyRef.current?.(); // mesh loaded + first frame rendered
     });
 
     const onResize = () => {
