@@ -36,7 +36,9 @@ export function ResultsCarousel({
   loading: boolean;
 }) {
   const slideSize = useSlideSize();
-  const slides = chunk(results, slideSize);
+  // cap the number shown so the dot row stays reasonable (and never forces the
+  // grid wider than the window on mobile)
+  const slides = chunk(results.slice(0, 48), slideSize);
 
   const [api, setApi] = useState<CarouselApi>();
   const [snaps, setSnaps] = useState<number[]>([]);
@@ -96,7 +98,7 @@ export function ResultsCarousel({
         ))}
       </CarouselContent>
       {snaps.length > 1 && (
-        <div className="mt-4 flex justify-center gap-2">
+        <div className="mt-4 flex max-w-full flex-wrap justify-center gap-2">
           {snaps.map((_, i) => (
             <button
               key={i}
