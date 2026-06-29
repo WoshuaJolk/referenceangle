@@ -162,7 +162,8 @@ export function ResultsCarousel({
         {lightbox && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={lightbox}
+            // grid uses 256px; the lightbox loads the larger 512px on demand
+            src={lightbox.replace("/images/", "/images/512/")}
             alt=""
             className="aspect-square w-full rounded-xl object-cover shadow-2xl"
           />

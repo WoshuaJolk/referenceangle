@@ -118,9 +118,7 @@ export default function Home() {
       >
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight">
-            Reference Angle
-          </h1>
+          <h1 className="text-xl font-semibold tracking-tight">Faces</h1>
           <p className="text-muted-foreground text-sm">
             Rotate the head to find faces.
           </p>

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Reference Angle",
+  title: "Faces",
   description: "Find reference photos of faces at a chosen head angle.",
 };
 
