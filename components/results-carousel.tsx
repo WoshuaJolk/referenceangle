@@ -109,48 +109,68 @@ export function ResultsCarousel({
     };
   }, [api, onUpdate]);
 
-  if (!loading && results.length === 0) {
-    return (
-      <div className="text-muted-foreground flex h-full min-h-[300px] items-center justify-center text-sm">
-        No faces match these filters. Try a different combination.
-      </div>
-    );
-  }
+  const empty = !loading && results.length === 0;
 
   return (
     <>
     <Carousel setApi={setApi} opts={{ align: "start" }} className="w-full">
       <CarouselContent>
-        {slides.map((slide, i) => (
-          <CarouselItem key={i}>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {slide.map((src, j) => (
-                <Thumb key={`${i}-${j}`} src={src} onOpen={setLightbox} />
-              ))}
+        {empty ? (
+          // Render the empty state as a slide so it has the exact same width /
+          // height as a populated slide (no layout shift when switching).
+          <CarouselItem>
+            <div className="relative">
+              <div
+                aria-hidden
+                className="grid grid-cols-2 gap-3 md:grid-cols-3"
+              >
+                {Array.from({ length: slideSize }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-lg border bg-neutral-50"
+                  />
+                ))}
+              </div>
+              <div className="text-muted-foreground absolute inset-0 flex items-center justify-center px-6 text-center text-sm">
+                No faces match these filters. Try a different combination.
+              </div>
             </div>
           </CarouselItem>
-        ))}
+        ) : (
+          slides.map((slide, i) => (
+            <CarouselItem key={i}>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                {slide.map((src, j) => (
+                  <Thumb key={`${i}-${j}`} src={src} onOpen={setLightbox} />
+                ))}
+              </div>
+            </CarouselItem>
+          ))
+        )}
       </CarouselContent>
-      {snaps.length > 1 && (
-        <div className="mt-4 flex max-w-full flex-wrap justify-center gap-2">
-          {snaps.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Go to slide ${i + 1}`}
-              aria-current={i === selected}
-              onClick={() => api?.scrollTo(i)}
-              className={cn(
-                "size-2 rounded-full transition-colors",
-                i === selected
-                  ? "bg-black"
-                  : "bg-neutral-300 hover:bg-neutral-400"
-              )}
-            />
-          ))}
-        </div>
-      )}
     </Carousel>
+
+    {/* dot row — always reserves its height so switching to the empty state
+        (or a single slide) never shifts the layout */}
+    <div className="mt-4 flex h-2 max-w-full flex-wrap justify-center gap-2">
+      {!empty &&
+        snaps.length > 1 &&
+        snaps.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to slide ${i + 1}`}
+            aria-current={i === selected}
+            onClick={() => api?.scrollTo(i)}
+            className={cn(
+              "size-2 rounded-full transition-colors",
+              i === selected
+                ? "bg-black"
+                : "bg-neutral-300 hover:bg-neutral-400",
+            )}
+          />
+        ))}
+    </div>
     <Dialog
       open={!!lightbox}
       onOpenChange={(o) => {
