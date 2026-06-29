@@ -112,7 +112,7 @@ export default function Home() {
       )}
       <main
         className={cn(
-          "mx-auto min-h-screen max-w-6xl px-4 py-6 transition-opacity duration-300 sm:py-10",
+          "mx-auto w-full min-h-screen max-w-6xl px-4 py-6 transition-opacity duration-300 sm:py-10",
           ready ? "opacity-100" : "opacity-0",
         )}
       >
